@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shopping Cart</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px;
+            background-color: #f9f9f9;
+            border-bottom: 1px solid #ccc;
+        }
+
+        nav {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+
+        nav a {
+            text-decoration: none;
+            color: black;
+            font-weight: bold;
+        }
+
+        nav span {
+            font-weight: bold;
+        }
+
+        .cart {
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .cart-header {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+
+        .cart-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .cart-item img {
+            max-width: 80px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        .cart-item .item-info {
+            flex: 1;
+            margin-left: 20px;
+        }
+
+        .cart-item .item-info h4,
+        .cart-item .item-info p {
+            margin: 0;
+            font-weight: bold;
+        }
+
+        .cart-item .item-controls {
+            display: flex;
+            align-items: center;
+        }
+
+        .cart-item .item-controls button {
+            margin: 0 5px;
+            padding: 5px 10px;
+            background-color: orange;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+
+        .cart-item .item-controls button:hover {
+            background-color: darkorange;
+        }
+
+        .summary {
+            margin-top: 20px;
+            text-align: right;
+        }
+
+        .summary div {
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        .summary div span {
+            float: right;
+        }
+
+        .checkout {
+            display: block;
+            width: 100%;
+            margin-top: 20px;
+            padding: 15px;
+            background-color: orange;
+            color: white;
+            font-size: 18px;
+            font-weight: bold;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .checkout:hover {
+            background-color: darkorange;
+        }
+
+        .checkout:disabled {
+            background-color: lightgray;
+            cursor: not-allowed;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1><span style="color: black;">BOOK</span><span style="color: orange;">LINK</span></h1>
+        <nav>
+            <a href="#">Home</a>
+            <a href="#">Categories</a>
+            <a href="#">Services</a>
+            <a href="#">Contact</a>
+            <span>Shopping Cart</span>
+        </nav>
+    </header>
+
+    <div class="cart">
+        <div class="cart-header">
+            MY CART
+            <button onclick="clearCart()" style="float: right; background: none; color: black; font-weight: bold; border: none; cursor: pointer;">Clear All</button>
+        </div>
+
+        <div class="cart-item">
+            <img src="https://via.placeholder.com/80" alt="Notebook">
+            <div class="item-info">
+                <h4>NOTEBOOK</h4>
+                <p>$1 / item</p>
+            </div>
+            <div class="item-controls">
+                <button onclick="decreaseQuantity()">-</button>
+                <span id="quantity">1</span>
+                <button onclick="increaseQuantity()">+</button>
+            </div>
+            <div>
+                <button onclick="removeItem()" style="color: red; background: none; border: none; cursor: pointer;">Remove</button>
+            </div>
+        </div>
+
+        <div class="summary">
+            <div>Sub Total: <span id="subtotal">$1.00</span></div>
+            <div>Discount (10%): <span id="discount">$0.00</span></div>
+            <div>Tax (15%): <span id="tax">$0.15</span></div>
+            <div>Shipping: <span id="shipping">$1.00</span></div>
+            <div><strong>Total: <span id="total">$2.15</span></strong></div>
+        </div>
+
+        <button class="checkout" onclick="checkout()">Check Out</button>
+    </div>
+
+    <script>
+       let quantity = 1; // Current quantity of items in the cart
+const itemPrice = 1; // Price per item
+const shippingCost = 1; // Fixed shipping cost
+const taxRate = 0.15; // Tax rate (15%)
+const discountRate = 0.1; // Discount rate (10%)
+
+// Updates the cart totals and controls the display
+function updateCart() {
+    const subtotal = quantity > 0 ? itemPrice * quantity : 0; // Calculate subtotal
+    const discount = subtotal >= 5 ? subtotal * discountRate : 0; // Apply discount if subtotal >= 5
+    const tax = (subtotal - discount) * taxRate; // Calculate tax
+    const total = subtotal > 0 ? subtotal - discount + tax + shippingCost : 0; // Calculate total
+
+    // Update the cart's UI elements
+    if (document.getElementById('quantity')) {
+        document.getElementById('quantity').textContent = quantity > 0 ? quantity : 0;
+        document.getElementById('subtotal').textContent = `$${subtotal.toFixed(2)}`;
+        document.getElementById('discount').textContent = `$${discount.toFixed(2)}`;
+        document.getElementById('tax').textContent = `$${tax.toFixed(2)}`;
+        document.getElementById('total').textContent = `$${total.toFixed(2)}`;
+    }
+
+    // Disable the checkout button if total is 0
+    const checkoutButton = document.querySelector('.checkout');
+    if (checkoutButton) {
+        checkoutButton.disabled = total === 0;
+    }
+
+    // Display an empty cart message if no items are left
+    if (quantity === 0) {
+        const cartElement = document.querySelector('.cart');
+        if (cartElement) {
+            cartElement.innerHTML = `
+                <div class="cart-header">Your cart is empty.</div>
+            `;
+        }
+    }
+}
+
+// Increase the quantity of items
+function increaseQuantity() {
+    quantity++;
+    updateCart();
+}
+
+// Decrease the quantity of items, ensuring it doesn't drop below 1
+function decreaseQuantity() {
+    if (quantity > 1) {
+        quantity--;
+        updateCart();
+    }
+}
+
+// Remove a specific cart item
+function removeItem() {
+    const cartItem = document.querySelector('.cart-item');
+    if (cartItem) {
+        cartItem.remove(); // Remove the cart item element
+    }
+    quantity = 0; // Set quantity to 0
+    updateCart(); // Update the cart
+}
+
+// Clear all items in the cart
+function clearCart() {
+    const cartElement = document.querySelector('.cart');
+    if (cartElement) {
+        cartElement.innerHTML = `
+            <div class="cart-header">Your cart is empty.</div>
+        `;
+    }
+    quantity = 0; // Set quantity to 0
+    updateCart(); // Update the cart
+}
+
+// Handle the checkout process
+function checkout() {
+    if (quantity > 0) {
+        alert('Thank you for your purchase!');
+    } else {
+        alert('Your cart is empty!');
+    }
+}
+
+    </script>
+</body>
+</html>
